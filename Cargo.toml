@@ -1,0 +1,15 @@
+[package]
+name = "simple-vm"  
+version = "0.1.0"
+edition = "2021"
+authors = ["Rahul <rahulbuildsdefi@gmail.com>"]
+description = "A simple bytecode VM with a custom compiler"
+license = "MIT"
+repository = "https://github.com/andropixels/simple-vm"
+keywords = ["vm", "compiler", "bytecode", "interpreter", "language"]
+categories = ["compilers", "development-tools"]
+
+
+[dependencies]
+thiserror = "1.0"
+byteorder = "1.4"
