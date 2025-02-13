@@ -1,6 +1,6 @@
 [package]
 name = "simple-vm"  
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Rahul <rahulbuildsdefi@gmail.com>"]
 description = "A simple bytecode VM with a custom compiler"
