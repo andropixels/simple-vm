@@ -18,6 +18,8 @@ pub enum Token {
     DoubleEquals,
     LessThan,
     GreaterThan,
+    LessEqual,    
+    GreaterEqual,
 }
 
 pub struct Lexer {
@@ -113,6 +115,24 @@ impl Lexer {
             },
             '<' => { self.advance(); Some(Token::LessThan) },
             '>' => { self.advance(); Some(Token::GreaterThan) },
+            '<' => {
+                self.advance();
+                if self.peek() == Some('=') {
+                    self.advance();
+                    Some(Token::LessEqual)
+                } else {
+                    Some(Token::LessThan)
+                }
+            }
+            '>' => {
+                self.advance();
+                if self.peek() == Some('=') {
+                    self.advance();
+                    Some(Token::GreaterEqual)
+                } else {
+                    Some(Token::GreaterThan)
+                }
+            }
             _ => None,
         }
     }
