@@ -31,6 +31,8 @@ pub enum Opcode {
     Less = 0x0C,
     Print = 0x0D,
     Halt = 0xFF,
+    LessEqual = 0x0E,    
+    GreaterEqual = 0x0F, 
 }
 
 impl TryFrom<u8> for Opcode {
@@ -52,6 +54,9 @@ impl TryFrom<u8> for Opcode {
             0x0C => Ok(Opcode::Less),
             0x0D => Ok(Opcode::Print),
             0xFF => Ok(Opcode::Halt),
+            0x0E => Ok(Opcode::LessEqual),
+            0x0F => Ok(Opcode::GreaterEqual),
+            _ => Err(VMError::InvalidOpcode(value)),
             _ => Err(VMError::InvalidOpcode(value)),
         }
     }
@@ -193,6 +198,16 @@ impl VM {
             Opcode::Halt => {
                 self.running = false;
                 return Ok(false);
+            },
+            Opcode::LessEqual => {
+                let b = self.pop()?;
+                let a = self.pop()?;
+                self.push(if a <= b { 1 } else { 0 })?;
+            }
+            Opcode::GreaterEqual => {
+                let b = self.pop()?;
+                let a = self.pop()?;
+                self.push(if a >= b { 1 } else { 0 })?;
             }
         }
         Ok(true)
