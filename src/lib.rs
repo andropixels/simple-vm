@@ -15,6 +15,8 @@ pub enum VMError {
     DivisionByZero,
 }
 
+
+
 #[derive(Debug, Clone, Copy)]
 pub enum Opcode {
     Push = 0x01,
