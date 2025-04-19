@@ -5,15 +5,6 @@ A bytecode virtual machine and compiler written in Rust.
 ## Install
 
 
-
-
-
-
-
-
-
-
-
 ```
 cargo add simple-vm
 ```
