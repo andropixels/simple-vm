@@ -10,6 +10,9 @@ keywords = ["vm", "compiler", "bytecode", "interpreter", "language"]
 categories = ["compilers", "development-tools"]
 
 
+
+
+
 [dependencies]
 thiserror = "1.0"
 byteorder = "1.4"
