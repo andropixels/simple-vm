@@ -24,6 +24,7 @@ while x > 0 {
 ## Features
 
 - Basic arithmetic (add, subtract, multiply, divide)
+- Comparison operations (`==`, `<`, `<=`, `>=`)
 - Variables
 - While loops
 - If/else statements

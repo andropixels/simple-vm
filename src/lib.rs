@@ -15,9 +15,6 @@ pub enum VMError {
     DivisionByZero,
 }
 
-
-
-
 #[derive(Debug, Clone, Copy)]
 pub enum Opcode {
     Push = 0x01,
@@ -34,8 +31,8 @@ pub enum Opcode {
     Less = 0x0C,
     Print = 0x0D,
     Halt = 0xFF,
-    LessEqual = 0x0E,    
-    GreaterEqual = 0x0F, 
+    LessEqual = 0x0E,
+    GreaterEqual = 0x0F,
 }
 
 impl TryFrom<u8> for Opcode {
@@ -59,7 +56,6 @@ impl TryFrom<u8> for Opcode {
             0xFF => Ok(Opcode::Halt),
             0x0E => Ok(Opcode::LessEqual),
             0x0F => Ok(Opcode::GreaterEqual),
-            _ => Err(VMError::InvalidOpcode(value)),
             _ => Err(VMError::InvalidOpcode(value)),
         }
     }
@@ -201,7 +197,7 @@ impl VM {
             Opcode::Halt => {
                 self.running = false;
                 return Ok(false);
-            },
+            }
             Opcode::LessEqual => {
                 let b = self.pop()?;
                 let a = self.pop()?;
@@ -243,16 +239,30 @@ mod tests {
     fn test_push_pop() {
         let program = vec![
             Opcode::Push as u8,
-            42, 0, 0, 0, 0, 0, 0, 0,  // Push 42
+            42,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0, // Push 42
             Opcode::Push as u8,
-            123, 0, 0, 0, 0, 0, 0, 0,  // Push 123
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0, // Push 123
             Opcode::Pop as u8,
             Opcode::Halt as u8,
         ];
 
         let mut vm = VM::new(program, 100);
         vm.run().unwrap();
-        
+
         assert_eq!(vm.get_stack(), &[42]);
     }
 
@@ -260,19 +270,102 @@ mod tests {
     fn test_arithmetic() {
         let program = vec![
             Opcode::Push as u8,
-            10, 0, 0, 0, 0, 0, 0, 0,   // Push 10
+            10,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0, // Push 10
             Opcode::Push as u8,
-            5, 0, 0, 0, 0, 0, 0, 0,    // Push 5
-            Opcode::Add as u8,         // 10 + 5
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,                 // Push 5
+            Opcode::Add as u8, // 10 + 5
             Opcode::Push as u8,
-            2, 0, 0, 0, 0, 0, 0, 0,    // Push 2
-            Opcode::Mul as u8,         // (10 + 5) * 2
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,                 // Push 2
+            Opcode::Mul as u8, // (10 + 5) * 2
             Opcode::Halt as u8,
         ];
 
         let mut vm = VM::new(program, 100);
         vm.run().unwrap();
-        
+
         assert_eq!(vm.get_stack(), &[30]);
+    }
+
+    #[test]
+    fn test_less_equal_comparison() {
+        let program = vec![
+            Opcode::Push as u8,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            Opcode::Push as u8,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            Opcode::LessEqual as u8,
+            Opcode::Halt as u8,
+        ];
+
+        let mut vm = VM::new(program, 100);
+        vm.run().unwrap();
+
+        assert_eq!(vm.get_stack(), &[1]);
+    }
+
+    #[test]
+    fn test_greater_equal_comparison() {
+        let program = vec![
+            Opcode::Push as u8,
+            9,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            Opcode::Push as u8,
+            4,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            Opcode::GreaterEqual as u8,
+            Opcode::Halt as u8,
+        ];
+
+        let mut vm = VM::new(program, 100);
+        vm.run().unwrap();
+
+        assert_eq!(vm.get_stack(), &[1]);
     }
 }
