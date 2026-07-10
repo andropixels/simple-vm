@@ -1,3 +1,5 @@
+use crate::compiler::lexer::{Lexer, Token};
+
 #[derive(Debug)]
 pub enum Expr {
     Number(i64),
@@ -51,7 +53,10 @@ impl Parser {
             self.advance();
             Ok(())
         } else {
-            Err(format!("Expected {:?}, got {:?}", expected, self.current_token))
+            Err(format!(
+                "Expected {:?}, got {:?}",
+                expected, self.current_token
+            ))
         }
     }
 
@@ -76,7 +81,7 @@ impl Parser {
                 } else {
                     Err("Expected identifier after 'let'".to_string())
                 }
-            },
+            }
             Some(Token::If) => {
                 self.advance();
                 let condition = self.parse_expression()?;
@@ -88,19 +93,19 @@ impl Parser {
                     Vec::new()
                 };
                 Ok(Statement::If(condition, then_block, else_block))
-            },
+            }
             Some(Token::While) => {
                 self.advance();
                 let condition = self.parse_expression()?;
                 let block = self.parse_block()?;
                 Ok(Statement::While(condition, block))
-            },
+            }
             Some(Token::Print) => {
                 self.advance();
                 let expr = self.parse_expression()?;
                 self.expect(Token::Semicolon)?;
                 Ok(Statement::Print(expr))
-            },
+            }
             Some(Token::Identifier(name)) => {
                 let name = name.clone();
                 self.advance();
@@ -108,14 +113,14 @@ impl Parser {
                 let expr = self.parse_expression()?;
                 self.expect(Token::Semicolon)?;
                 Ok(Statement::Assign(name, expr))
-            },
+            }
             _ => Err("Expected statement".to_string()),
         }
     }
 
     fn parse_block(&mut self) -> Result<Vec<Statement>, String> {
         let mut statements = Vec::new();
-        
+
         match &self.current_token {
             Some(Token::LParen) => {
                 self.advance();
@@ -128,7 +133,7 @@ impl Parser {
                 statements.push(self.parse_statement()?);
             }
         }
-        
+
         Ok(statements)
     }
 
@@ -144,6 +149,8 @@ impl Parser {
                 Token::DoubleEquals => BinaryOpKind::Equals,
                 Token::LessThan => BinaryOpKind::LessThan,
                 Token::GreaterThan => BinaryOpKind::GreaterThan,
+                Token::LessEqual => BinaryOpKind::LessEqual,
+                Token::GreaterEqual => BinaryOpKind::GreaterEqual,
                 _ => break,
             };
             self.advance();

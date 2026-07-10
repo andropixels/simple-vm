@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use thiserror::Error;
 
+pub mod compiler;
+
 #[derive(Debug, Error)]
 pub enum VMError {
     #[error("Stack underflow")]

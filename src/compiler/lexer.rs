@@ -18,7 +18,7 @@ pub enum Token {
     DoubleEquals,
     LessThan,
     GreaterThan,
-    LessEqual,    
+    LessEqual,
     GreaterEqual,
 }
 
@@ -61,7 +61,7 @@ impl Lexer {
     fn read_number(&mut self) -> Token {
         let mut number = String::new();
         while let Some(ch) = self.peek() {
-            if !ch.is_digit(10) {
+            if !ch.is_ascii_digit() {
                 break;
             }
             number.push(ch);
@@ -73,13 +73,13 @@ impl Lexer {
     fn read_identifier(&mut self) -> Token {
         let mut ident = String::new();
         while let Some(ch) = self.peek() {
-            if !ch.is_alphanumeric() && ch != '_' {
+            if !ch.is_ascii_alphanumeric() && ch != '_' {
                 break;
             }
             ident.push(ch);
             self.advance();
         }
-        
+
         match ident.as_str() {
             "let" => Token::Let,
             "if" => Token::If,
@@ -92,18 +92,39 @@ impl Lexer {
 
     pub fn next_token(&mut self) -> Option<Token> {
         self.skip_whitespace();
-        
+
         let ch = self.peek()?;
         match ch {
             '0'..='9' => Some(self.read_number()),
             'a'..='z' | 'A'..='Z' | '_' => Some(self.read_identifier()),
-            '+' => { self.advance(); Some(Token::Plus) },
-            '-' => { self.advance(); Some(Token::Minus) },
-            '*' => { self.advance(); Some(Token::Star) },
-            '/' => { self.advance(); Some(Token::Slash) },
-            '(' => { self.advance(); Some(Token::LParen) },
-            ')' => { self.advance(); Some(Token::RParen) },
-            ';' => { self.advance(); Some(Token::Semicolon) },
+            '+' => {
+                self.advance();
+                Some(Token::Plus)
+            }
+            '-' => {
+                self.advance();
+                Some(Token::Minus)
+            }
+            '*' => {
+                self.advance();
+                Some(Token::Star)
+            }
+            '/' => {
+                self.advance();
+                Some(Token::Slash)
+            }
+            '(' => {
+                self.advance();
+                Some(Token::LParen)
+            }
+            ')' => {
+                self.advance();
+                Some(Token::RParen)
+            }
+            ';' => {
+                self.advance();
+                Some(Token::Semicolon)
+            }
             '=' => {
                 self.advance();
                 if self.peek() == Some('=') {
@@ -112,9 +133,7 @@ impl Lexer {
                 } else {
                     Some(Token::Equals)
                 }
-            },
-            '<' => { self.advance(); Some(Token::LessThan) },
-            '>' => { self.advance(); Some(Token::GreaterThan) },
+            }
             '<' => {
                 self.advance();
                 if self.peek() == Some('=') {
@@ -135,5 +154,55 @@ impl Lexer {
             }
             _ => None,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Lexer, Token};
+
+    fn collect_tokens(input: &str) -> Vec<Token> {
+        let mut lexer = Lexer::new(input);
+        let mut tokens = Vec::new();
+
+        while let Some(token) = lexer.next_token() {
+            tokens.push(token);
+        }
+
+        tokens
+    }
+
+    #[test]
+    fn tokenizes_single_character_comparisons() {
+        assert_eq!(
+            collect_tokens("x < 10; y > 3;"),
+            vec![
+                Token::Identifier("x".to_string()),
+                Token::LessThan,
+                Token::Number(10),
+                Token::Semicolon,
+                Token::Identifier("y".to_string()),
+                Token::GreaterThan,
+                Token::Number(3),
+                Token::Semicolon,
+            ]
+        );
+    }
+
+    #[test]
+    fn tokenizes_inclusive_comparisons() {
+        assert_eq!(
+            collect_tokens("x <= 10; y >= 3;"),
+            vec![
+                Token::Identifier("x".to_string()),
+                Token::LessEqual,
+                Token::Number(10),
+                Token::Semicolon,
+                Token::Identifier("y".to_string()),
+                Token::GreaterEqual,
+                Token::Number(3),
+                Token::Semicolon,
+            ]
+        );
     }
 }

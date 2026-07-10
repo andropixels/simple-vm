@@ -1,3 +1,10 @@
+use std::collections::HashMap;
+
+use crate::{
+    compiler::parser::{BinaryOpKind, Expr, Statement},
+    Opcode,
+};
+
 pub struct Compiler {
     bytecode: Vec<u8>,
     variables: HashMap<String, usize>,
@@ -54,6 +61,8 @@ impl Compiler {
                     BinaryOpKind::Div => self.emit(Opcode::Div as u8),
                     BinaryOpKind::Equals => self.emit(Opcode::Equal as u8),
                     BinaryOpKind::LessThan => self.emit(Opcode::Less as u8),
+                    BinaryOpKind::LessEqual => self.emit(Opcode::LessEqual as u8),
+                    BinaryOpKind::GreaterEqual => self.emit(Opcode::GreaterEqual as u8),
                     BinaryOpKind::GreaterThan => {
                         // a > b is equivalent to b < a
                         let temp = self.bytecode.len() - 16; // Assuming each push takes 8 bytes
@@ -77,47 +86,50 @@ impl Compiler {
                 }
                 Statement::If(condition, then_block, else_block) => {
                     self.compile_expr(&condition);
-                    
+
                     // Placeholder for jump addresses
                     let jump_if_pos = self.bytecode.len();
                     self.emit(Opcode::JumpIf as u8);
                     self.emit_i64(0); // Placeholder for else block
-                    
+
                     self.compile(then_block);
-                    
+
                     let jump_end_pos = self.bytecode.len();
                     self.emit(Opcode::Jump as u8);
                     self.emit_i64(0); // Placeholder for end
-                    
+
                     let else_pos = self.bytecode.len();
                     self.compile(else_block);
                     let end_pos = self.bytecode.len();
-                    
+
                     // Fix up the jump addresses
                     let else_addr = else_pos as i64;
                     let end_addr = end_pos as i64;
-                    self.bytecode[jump_if_pos+1..jump_if_pos+9].copy_from_slice(&else_addr.to_le_bytes());
-                    self.bytecode[jump_end_pos+1..jump_end_pos+9].copy_from_slice(&end_addr.to_le_bytes());
+                    self.bytecode[jump_if_pos + 1..jump_if_pos + 9]
+                        .copy_from_slice(&else_addr.to_le_bytes());
+                    self.bytecode[jump_end_pos + 1..jump_end_pos + 9]
+                        .copy_from_slice(&end_addr.to_le_bytes());
                 }
                 Statement::While(condition, block) => {
                     let start_pos = self.bytecode.len();
-                    
+
                     self.compile_expr(&condition);
-                    
+
                     let jump_pos = self.bytecode.len();
                     self.emit(Opcode::JumpIf as u8);
                     self.emit_i64(0); // Placeholder for end
-                    
+
                     self.compile(block);
-                    
+
                     // Jump back to start
                     self.emit(Opcode::Push as u8);
                     self.emit_i64(start_pos as i64);
                     self.emit(Opcode::Jump as u8);
-                    
+
                     let end_pos = self.bytecode.len();
                     let end_addr = end_pos as i64;
-                    self.bytecode[jump_pos+1..jump_pos+9].copy_from_slice(&end_addr.to_le_bytes());
+                    self.bytecode[jump_pos + 1..jump_pos + 9]
+                        .copy_from_slice(&end_addr.to_le_bytes());
                 }
                 Statement::Print(expr) => {
                     self.compile_expr(&expr);
@@ -125,7 +137,7 @@ impl Compiler {
                 }
             }
         }
-        
+
         self.emit(Opcode::Halt as u8);
         self.bytecode.clone()
     }
