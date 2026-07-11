@@ -161,8 +161,8 @@ impl VM {
                 self.push(value)?;
             }
             Opcode::Store => {
-                let value = self.pop()?;
                 let addr = self.pop()? as usize;
+                let value = self.pop()?;
                 self.memory.insert(addr, value);
             }
             Opcode::Jump => {
@@ -235,6 +235,8 @@ impl VM {
 
 #[cfg(test)]
 mod tests {
+    use crate::compiler::{compiler::Compiler, parser::Parser};
+
     use super::*;
 
     #[test]
@@ -369,5 +371,21 @@ mod tests {
         vm.run().unwrap();
 
         assert_eq!(vm.get_stack(), &[1]);
+    }
+
+    #[test]
+    fn test_compiled_inclusive_comparisons() {
+        let code = "
+            let less_equal = 4 <= 4;
+            let greater_equal = 9 >= 3;
+        ";
+        let statements = Parser::new(code).parse_program().unwrap();
+        let bytecode = Compiler::new().compile(statements);
+        let mut vm = VM::new(bytecode, 100);
+
+        vm.run().unwrap();
+
+        assert_eq!(vm.get_memory().get(&0), Some(&1));
+        assert_eq!(vm.get_memory().get(&1), Some(&1));
     }
 }
