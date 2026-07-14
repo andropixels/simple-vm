@@ -235,7 +235,7 @@ impl VM {
 
 #[cfg(test)]
 mod tests {
-    use crate::compiler::{compiler::Compiler, parser::Parser};
+    use crate::compiler::{parser::Parser, Compiler};
 
     use super::*;
 

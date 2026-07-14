@@ -142,3 +142,9 @@ impl Compiler {
         self.bytecode.clone()
     }
 }
+
+impl Default for Compiler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
